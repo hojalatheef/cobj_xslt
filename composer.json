@@ -1,38 +1,64 @@
 {
-    "name": "digicademy/cobj_xslt",
-    "type": "typo3-cms-extension",
-    "description": "Extends TYPO3 with a new content object XSLT for flexible XML transformations",
-    "homepage": "http://www.adwmainz.de/",
-    "authors": [{
-        "name": "Torsten Schrade",
-        "email": "Torsten.Schrade@adwmainz.de",
-        "role": "Developer",
-        "homepage": "http://www.adwmainz.de"
-    }],
-    "license": "GPL-2.0-or-later",
-    "keywords": ["TYPO3", "XML", "XSLT", "Digital Humanities"],
-    "support": {
-        "issues": "https://github.com/digicademy/cobj_xslt/issues"
-    },
-    "require": {
-        "typo3/cms-core": "^9.5 || ^10.4",
-        "ext-libxml": "*",
-        "ext-json": "*",
-        "ext-simplexml": "*",
-        "ext-dom": "*",
-        "ext-xsl": "*"
-    },
-    "replace": {
-        "typo3-ter/cobj_xslt": "self.version"
-    },
-    "autoload": {
-        "psr-4": {
-            "Digicademy\\CobjXslt\\": "Classes/"
-        }
-    },
-    "extra": {
-        "typo3/cms": {
-            "extension-key": "cobj_xslt"
-        }
-    }
+	"name": "digicademy/cobj_xslt",
+	"description": "Extends TYPO3 with a new content object XSLT for flexible XML transformations",
+	"license": "GPL-2.0-or-later",
+	"type": "typo3-cms-extension",
+	"keywords": [
+		"TYPO3",
+		"XML",
+		"XSLT",
+		"Digital Humanities"
+	],
+	"authors": [
+		{
+			"name": "Torsten Schrade",
+			"email": "Torsten.Schrade@adwmainz.de",
+			"homepage": "http://www.adwmainz.de",
+			"role": "Developer"
+		}
+	],
+	"homepage": "http://www.adwmainz.de/",
+	"support": {
+		"issues": "https://github.com/digicademy/cobj_xslt/issues"
+	},
+	"require": {
+		"ext-dom": "*",
+		"ext-json": "*",
+		"ext-libxml": "*",
+		"ext-simplexml": "*",
+		"ext-xsl": "*",
+		"typo3/cms-core": "^11.5 || ^12.4",
+		"typo3/cms-frontend": "^11.5 || ^12.4"
+	},
+	"require-dev": {
+		"ergebnis/composer-normalize": "~2.42.0",
+		"friendsofphp/php-cs-fixer": "^3.14",
+		"phpstan/phpstan": "^1.10",
+		"phpunit/phpunit": "^9.6",
+		"roave/security-advisories": "dev-latest"
+	},
+	"replace": {
+		"typo3-ter/cobj_xslt": "self.version"
+	},
+	"autoload": {
+		"psr-4": {
+			"Digicademy\\CobjXslt\\": "Classes/"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"ergebnis/composer-normalize": true,
+			"typo3/class-alias-loader": true,
+			"typo3/cms-composer-installers": true
+		},
+		"bin-dir": ".Build/bin",
+		"sort-packages": true,
+		"vendor-dir": ".Build/vendor"
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "cobj_xslt",
+			"web-dir": ".Build/web"
+		}
+	}
 }
