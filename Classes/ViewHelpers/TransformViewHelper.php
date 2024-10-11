@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Digicademy\CobjXslt\ViewHelpers;
 
 /***************************************************************
@@ -26,8 +28,9 @@ namespace Digicademy\CobjXslt\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Usage:
@@ -36,31 +39,18 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  *
  * The transformations property of the view helper expects an array of configurations, just as you would normally do it from TypoScript.
  * Only the four configuration keys from above are allowed; no setParameter/removeParameter; you are in a Fluid context, this should not be necessary
- *
  */
-
 class TransformViewHelper extends AbstractViewHelper
 {
+    protected ConfigurationManagerInterface $configurationManager;
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
-     */
-    protected $configurationManager;
+    protected ContentObjectRenderer $contentObject;
 
-    /**
-     * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
-     */
-    protected $contentObject;
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
-     *
-     * @return void
-     */
-    public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager) {
+    public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
+    {
         $this->configurationManager = $configurationManager;
         $this->contentObject = $this->configurationManager->getContentObject();
-        $this->contentObject->start(array(), '');
+        $this->contentObject->start([], '');
     }
 
     /**
@@ -90,7 +80,7 @@ class TransformViewHelper extends AbstractViewHelper
         }
 
         if (count($transformations) > 0 && array_key_exists('stylesheet', $transformations[0])) {
-            $configuration = array();
+            $configuration = [];
             foreach ($transformations as $key => $transformation) {
                 $i = $key + 1;
                 $configuration['transformations.'][$i]['stylesheet'] = $transformation['stylesheet'];

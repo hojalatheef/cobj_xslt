@@ -26,37 +26,23 @@ namespace Digicademy\CobjXslt\ContentObject;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use DOMDocument;
-use XSLTProcessor;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
-
-if (!defined('TYPO3_MODE')) {
+if (!defined('TYPO3')) {
     die('Access denied.');
 }
 
 class XsltContentObject extends AbstractContentObject
 {
+    protected \DOMDocument $xsl;
 
-    /**
-     * @var \DOMDocument $xsl Instance for loading a XSL stylesheet during a transformation run
-     */
-    protected $xsl;
+    protected \XSLTProcessor $xslt;
 
-    /**
-     * @var \XSLTProcessor $xslt XSLT Processor instance during a transformation run
-     */
-    protected $xslt;
-
-    /**
-     * @var ContentObjectRenderer
-     */
-    protected $cObj;
+    protected ?ContentObjectRenderer $cObj;
 
     /**
      * Renders the XSLT content object
@@ -64,22 +50,19 @@ class XsltContentObject extends AbstractContentObject
      * @param array $conf TypoScript configuration of the cObj
      *
      * @return string The transformed XML string
-     *
      */
-    public function render($conf = [])
+    public function render($conf = []): string
     {
         $content = '';
 
         // TimeTracker object is gone in TYPO3 8 but needed to set TS log messages; instantiate in versions >= 8.7
-        if (VersionNumberUtility::convertVersionNumberToInteger(TYPO3_branch) >= 8007000 && !is_object($GLOBALS['TT'])) {
-            $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
-        }
+        $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
 
         // Check if necessary XML extensions are loaded with PHP
         if (extension_loaded('SimpleXML') && extension_loaded('libxml') && extension_loaded('dom') && extension_loaded('xsl')) {
-
             // Fetch XML data
-            if (isset($conf['source']) || is_array($conf['source.'])) {
+            if (isset($conf['source']) || (isset($conf['source.']) || is_array($conf['source.']))) {
+                $conf['source.'] = isset($conf['source.']) ? $conf['source.'] : [];
                 $xmlsource = $this->fetchXml($conf['source'], $conf['source.']);
             } else {
                 $GLOBALS['TT']->setTSlogMessage('Source for XML is not configured.', 3);
@@ -108,12 +91,11 @@ class XsltContentObject extends AbstractContentObject
                         foreach ($conf['transformations.'] as $index => $transformation) {
 
                             // Prepare new XSL for this run
-                            $this->xsl = GeneralUtility::makeInstance(DOMDocument::class);
+                            $this->xsl = GeneralUtility::makeInstance(\DOMDocument::class);
 
                             // get stylesheet for the transformation
-                            $stylesheet = $this->fetchXml($transformation['stylesheet'],
-                                $transformation['stylesheet.']);
-
+                            $transformation['stylesheet.'] = isset($transformation['stylesheet.']) ? $transformation['stylesheet.'] : [];
+                            $stylesheet = $this->fetchXml($transformation['stylesheet'], $transformation['stylesheet.']);
                             // If loading of the stylesheet isn't successfull, skip this run
                             if (empty($stylesheet) || $this->xsl->loadXML($stylesheet) === false) {
                                 $GLOBALS['TT']->setTSlogMessage('No valid XSL stylesheet set for transformation ' . $index . '', 3);
@@ -124,7 +106,7 @@ class XsltContentObject extends AbstractContentObject
                             if ($this->xsl instanceof \DOMDocument) {
 
                                 // Create a new XSLT processor and import the current stylesheet
-                                $this->xslt = GeneralUtility::makeInstance(XSLTProcessor::class);
+                                $this->xslt = GeneralUtility::makeInstance(\XSLTProcessor::class);
                                 $this->xslt->importStylesheet($this->xsl);
 
                                 // Possibility to register PHP functions for use within the XSL stylesheet
@@ -134,7 +116,7 @@ class XsltContentObject extends AbstractContentObject
                                     if (is_array($transformation['registerPHPFunctions.'])) {
 
                                         // Test if the functions can be called
-                                        $registeredFunctions = array();
+                                        $registeredFunctions = [];
                                         foreach ($transformation['registerPHPFunctions.'] as $key => $function) {
                                             if (strpos($function, '::')) {
                                                 $objectAndMethod = GeneralUtility::trimExplode('::', $function);
@@ -162,7 +144,7 @@ class XsltContentObject extends AbstractContentObject
                                 }
 
                                 // Set parameters for this stylesheet
-                                if (is_array($transformation['setParameters.'])) {
+                                if (isset($transformation['setParameters.']) && is_array($transformation['setParameters.'])) {
 
                                     foreach ($transformation['setParameters.'] as $parameter => $value) {
                                         $paramNamespace = '';
@@ -178,7 +160,7 @@ class XsltContentObject extends AbstractContentObject
                                 }
 
                                 // Remove parameters from this stylesheet
-                                if (is_array($transformation['removeParameters.'])) {
+                                if (isset($transformation['removeParameters.']) && is_array($transformation['removeParameters.'])) {
 
                                     foreach ($transformation['removeParameters.'] as $parameter => $value) {
                                         $paramNamespace = '';
@@ -205,7 +187,7 @@ class XsltContentObject extends AbstractContentObject
                                 if ($result !== '') {
 
                                     // Load the transformed XML from the last run into a new DOM object
-                                    $formerResult = GeneralUtility::makeInstance(DOMDocument::class);
+                                    $formerResult = GeneralUtility::makeInstance(\DOMDocument::class);
 
                                     // If the XML is valid, apply the current XSL transformation
                                     if ($formerResult->loadXML($result) !== false) {
@@ -227,20 +209,22 @@ class XsltContentObject extends AbstractContentObject
                                 }
 
                                 // stdWrap for this transformation
-                                if ($transformation['stdWrap.']) {
+                                if (isset($transformation['stdWrap.'])) {
                                     $result = $this->cObj->stdWrap($result, $transformation['stdWrap.']);
                                 }
 
                                 // If set write the result of this transformation to a file
                                 // Use TYPO3 functions here (and not transformToURI) so that the stdWrap output can be included
-                                if ($resultFile = GeneralUtility::getFileAbsFileName($this->cObj->stdWrap($transformation['transformToURI'],
-                                    $transformation['transformToURI.']))
+                                if (isset($transformation['transformToURI']) && $resultFile = GeneralUtility::getFileAbsFileName($this->cObj->stdWrap(
+                                    $transformation['transformToURI'],
+                                    $transformation['transformToURI.'],
+                                ))
                                 ) {
                                     GeneralUtility::writeFile($resultFile, $result);
                                 }
 
                                 // suppress transformation result if configured; makes sense in scenarios where the transformation output is written to a file
-                                if ($resultFile && (int)$transformation['suppressReturn'] === 1) {
+                                if (isset($resultFile) && $resultFile && (int)$transformation['suppressReturn'] === 1) {
                                     $result = '';
                                 }
 
