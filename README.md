@@ -21,13 +21,14 @@ The documentation is at [https://docs.typo3.org/p/digicademy/cobj_xslt/master/en
 
 ## TYPO3 compatibility
 
-| Version     | TYPO3      | PHP       | Support                                 |
-| ----------- | ---------- | ----------|---------------------------------------- |
-| 1.10        | 9.5 - 10.4 | 7.2       | Features, Bugfixes, Security Updates    |
-| 1.9         | 8.7 - 9.5  | 7.2       | Bugfixes, Security Updates              |
-| 1.8         | 7.6 - 8.7  | 5.6 - 7.2 | none                                    |
-| 1.7         | 6.2 - 7.6  | 5.6 - 7.2 | none                                    |
-| 1.6         | 4.5 - 6.2  | 5.4 - 5.6 | none                                    |
+| Version | TYPO3       | PHP       | Support                               |
+|---------|-------------|-----------|-------------------------------------- |
+| 2.0     | 11.5 - 12.4 | 7.4       | Features, Bugfixes    |
+| 1.10    | 9.5 - 10.4  | 7.2       | Features, Bugfixes, Security Updates  |
+| 1.9     | 8.7 - 9.5   | 7.2       | Bugfixes, Security Updates            |
+| 1.8     | 7.6 - 8.7   | 5.6 - 7.2 | none                                  |
+| 1.7     | 6.2 - 7.6   | 5.6 - 7.2 | none                                  |
+| 1.6     | 4.5 - 6.2   | 5.4 - 5.6 | none                                  |
 
 ## Research Software Engineering
 
