@@ -150,7 +150,8 @@ class XsltContentObject extends AbstractContentObject
                                         $paramNamespace = '';
                                         if (substr($parameter, -1) == '.' && is_array($value) === true) {
                                             $paramName = substr($parameter, 0, -1);
-                                            $paramNamespace = $value['namespace'];
+                                            $paramNamespace = isset($value['namespace']) ?? $value['namespace'];
+                                            $value['value'] = isset($value['value']) ?? $value['value'];
                                             $paramValue = $this->cObj->stdWrap($value['value'], $value['value.']);
                                             $this->xslt->setParameter($paramNamespace, $paramName, $paramValue);
                                         } else {
